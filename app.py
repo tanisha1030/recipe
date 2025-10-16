@@ -1,245 +1,314 @@
 import streamlit as st
-import json
-import sqlite3
-import re
+import json, sqlite3, re
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any
 from difflib import get_close_matches
 from fractions import Fraction
-from datetime import datetime
-import io
-from PIL import Image
-import base64
 
-# ========== CONFIGURATION ==========
-st.set_page_config(
-    page_title="Smart Recipe Generator",
-    page_icon="🍽️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="Smart Recipe Generator", layout="centered", initial_sidebar_state="expanded")
 
 BASE = Path(__file__).parent
 DATA_PATH = BASE / "recipes.json"
 DB_PATH = BASE / "data.db"
 
-# ========== CONSTANTS ==========
-NON_VEG_INGREDIENTS = {
-    "egg", "eggs", "chicken", "fish", "meat", "pork", "beef",
-    "shrimp", "tuna", "salmon", "bacon", "ham", "turkey", "lamb",
-    "duck", "crab", "lobster", "anchovy", "anchovies", "gelatin"
-}
+# Non-veg ingredients to exclude for vegetarian/vegan filters
+NON_VEG_INGREDIENTS = {"egg", "chicken", "fish", "meat", "pork", "beef", "shrimp", "tuna", "salmon"}
 
 SUBSTITUTIONS = {
-    "butter": ["oil", "margarine", "coconut oil", "ghee"],
-    "milk": ["soy milk", "almond milk", "oat milk", "coconut milk"],
-    "egg": ["flaxseed + water", "chia seeds + water", "applesauce", "banana"],
-    "yogurt": ["sour cream", "buttermilk", "coconut yogurt"],
-    "sugar": ["honey", "maple syrup", "agave", "stevia"],
-    "flour": ["almond flour", "coconut flour", "oat flour", "rice flour"],
-    "cream": ["coconut cream", "cashew cream", "evaporated milk"],
-    "cheese": ["nutritional yeast", "vegan cheese", "tofu"],
-    "soy sauce": ["tamari", "coconut aminos", "worcestershire sauce"],
-    "vinegar": ["lemon juice", "lime juice", "white wine"]
+    "butter": ["oil", "margarine"],
+    "milk": ["soy milk", "almond milk", "water"],
+    "egg": ["flaxseed", "banana (mashed)"],
+    "yogurt": ["sour cream", "buttermilk"],
+    "sugar": ["honey", "maple syrup", "stevia"]
 }
 
-COMMON_INGREDIENTS = [
-    "tomato", "onion", "garlic", "potato", "carrot", "broccoli",
-    "chicken", "beef", "fish", "egg", "cheese", "milk", "butter",
-    "bread", "rice", "pasta", "flour", "sugar", "salt", "pepper",
-    "oil", "lettuce", "cucumber", "bell pepper", "mushroom",
-    "lemon", "lime", "apple", "banana", "orange", "strawberry",
-    "spinach", "kale", "avocado", "ginger", "basil", "parsley"
-]
-
-# ========== DATABASE ==========
+# ---------- DATABASE ----------
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS favorites (
-            recipe_id TEXT PRIMARY KEY,
-            title TEXT,
-            added_ts DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS ratings (
-            recipe_id TEXT PRIMARY KEY,
-            rating INTEGER,
-            rated_ts DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    c.execute("""CREATE TABLE IF NOT EXISTS favorites (recipe_id TEXT PRIMARY KEY, added_ts DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS ratings (recipe_id TEXT PRIMARY KEY, rating INTEGER, rated_ts DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     conn.commit()
     conn.close()
 
-# ========== DATA ==========
+# ---------- DATA ----------
 @st.cache_data(show_spinner=False)
 def load_recipes() -> List[Dict[str, Any]]:
-    try:
-        with open(DATA_PATH, "r", encoding="utf-8") as f:
-            recipes = json.load(f)
-        return [r for r in recipes if 'id' in r and 'title' in r and 'ingredients' in r]
-    except Exception as e:
-        st.error(f"Error loading recipes: {e}")
-        return []
+    with open(DATA_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-# ========== INGREDIENT SCALING ==========
-def _parse_number_prefix(s: str) -> Tuple[Optional[float], str]:
+# ---------- UTILITIES ----------
+def _parse_number_prefix(s: str):
     """Extract leading numeric quantity (supports fractions, decimals, and mixed numbers)."""
     s = s.strip()
-    # Mixed number e.g. 1 1/2
+    # mixed number: 1 1/2
     m = re.match(r"^(\d+)\s+(\d+/\d+)\b(.*)$", s)
     if m:
         whole = int(m.group(1))
         frac = Fraction(m.group(2))
         rest = m.group(3).strip()
         return float(whole + frac), rest
-    # Fraction
+    # simple fraction: 1/2
     m = re.match(r"^(\d+/\d+)\b(.*)$", s)
     if m:
         frac = Fraction(m.group(1))
         rest = m.group(2).strip()
         return float(frac), rest
-    # Decimal or integer
-    m = re.match(r"^(\d+(?:\.\d+)?)(.*)$", s)
+    # decimal or integer
+    m = re.match(r"^(\d+(\.\d+)?)(?:\s*([a-zA-Z\/]+))?\s*(.*)$", s)
     if m:
         num = float(m.group(1))
-        rest = m.group(2).strip()
+        unit = m.group(3) or ""
+        rest = m.group(4).strip()
+        if unit and (rest == "" or not rest.startswith(unit)):
+            rest = (unit + " " + rest).strip()
         return num, rest
     return None, s
 
 def scale_ingredients(ingredients: List[str], original_servings: int, new_servings: int) -> List[str]:
-    """Scale ingredients intelligently."""
+    """
+    Scales ingredient lines intelligently. If no numeric quantity exists,
+    adds proportional note (x2, x0.5, etc.)
+    """
     scaled = []
     try:
-        ratio = new_servings / max(1, original_servings)
-        for ing in ingredients:
-            num, rest = _parse_number_prefix(ing)
-            if num is not None:
-                scaled_num = num * ratio
-                if scaled_num.is_integer():
-                    scaled_num = int(scaled_num)
-                else:
-                    scaled_num = round(scaled_num, 2)
-                scaled.append(f"{scaled_num} {rest}".strip())
-            else:
-                scaled.append(f"{ing} (x{ratio:.1f})" if ratio != 1 else ing)
-        return scaled
+        orig = int(original_servings) if original_servings else 1
     except Exception:
-        return ingredients
+        orig = 1
+    try:
+        new = int(new_servings) if new_servings else orig
+    except Exception:
+        new = orig
 
-# ========== FAVORITES ==========
-def add_favorite(recipe_id: str, title: str):
+    ratio = new / orig if orig else 1.0
+
+    for ing in ingredients:
+        try:
+            num, rest = _parse_number_prefix(ing)
+            if num is None:
+                if ratio != 1:
+                    scaled.append(f"{ing} (x{ratio:.2f})")
+                else:
+                    scaled.append(ing)
+            else:
+                scaled_num = round(num * ratio, 2)
+                scaled.append(f"{scaled_num} {rest}".strip())
+        except Exception:
+            if ratio != 1:
+                scaled.append(f"{ing} (x{ratio:.2f})")
+            else:
+                scaled.append(ing)
+    return scaled
+
+def suggest_substitutions(ingredient: str):
+    ingredient = (ingredient or "").lower()
+    if ingredient in SUBSTITUTIONS:
+        return SUBSTITUTIONS[ingredient]
+    close = get_close_matches(ingredient, SUBSTITUTIONS.keys(), n=1, cutoff=0.7)
+    if close:
+        return SUBSTITUTIONS[close[0]]
+    return []
+
+# ---------- MATCHING ----------
+def match_recipes(available_ingredients: List[str], recipes: List[Dict],
+                  dietary=None, difficulty=None, max_time=None, max_results=8):
+    available = set(i.strip().lower() for i in available_ingredients if i.strip())
+    results = []
+
+    for r in recipes:
+        req = set(r.get("ingredients", []))
+
+        # strict dietary enforcement
+        if dietary in ("vegetarian", "vegan"):
+            if req & NON_VEG_INGREDIENTS:
+                continue
+        if dietary and dietary not in [d.lower() for d in r.get("dietary", [])]:
+            continue
+        if difficulty and r.get("difficulty", "").lower() != difficulty:
+            continue
+        if max_time and r.get("time_minutes", 0) > max_time:
+            continue
+
+        exact_matches = req & available
+        if not exact_matches:
+            continue
+
+        common = len(exact_matches)
+        overlap = common / max(1, len(req))
+        if overlap < 0.25 and common < 1:
+            continue
+        score = common + overlap
+        results.append((score, r))
+
+    # ✅ Deduplicate by normalized title (ignore "(v1)", "(v4)", etc.)
+    seen_titles = set()
+    deduped = []
+    for score, r in sorted(results, key=lambda x: x[0], reverse=True):
+        norm_title = re.sub(r"\(.*?\)", "", r["title"].lower()).strip()
+        if norm_title in seen_titles:
+            continue
+        seen_titles.add(norm_title)
+        deduped.append(r)
+        if len(deduped) >= max_results:
+            break
+
+    return deduped
+
+# ---------- FAVORITES / RATINGS ----------
+def add_favorite(recipe_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("INSERT OR IGNORE INTO favorites (recipe_id, title) VALUES (?, ?)", (recipe_id, title))
+    c.execute("INSERT OR IGNORE INTO favorites (recipe_id) VALUES (?)", (recipe_id,))
     conn.commit()
     conn.close()
 
-def remove_favorite(recipe_id: str):
+def remove_favorite(recipe_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("DELETE FROM favorites WHERE recipe_id=?", (recipe_id,))
     conn.commit()
     conn.close()
 
-def get_favorites() -> List[Dict[str, Any]]:
+def set_rating(recipe_id, rating):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT recipe_id, title, added_ts FROM favorites ORDER BY added_ts DESC")
-    rows = c.fetchall()
-    conn.close()
-    return [{"id": r[0], "title": r[1], "added": r[2]} for r in rows]
-
-# ========== RATINGS ==========
-def set_rating(recipe_id: str, rating: int):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT OR REPLACE INTO ratings (recipe_id, rating) VALUES (?,?)", (recipe_id, rating))
+    c.execute("INSERT OR REPLACE INTO ratings (recipe_id, rating) VALUES (?,?)", (recipe_id, int(rating)))
     conn.commit()
     conn.close()
 
-def get_ratings() -> Dict[str, int]:
+def get_user_ratings():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT recipe_id, rating FROM ratings")
-    ratings = {row[0]: row[1] for row in c.fetchall()}
+    res = {row[0]: row[1] for row in c.fetchall()}
     conn.close()
-    return ratings
+    return res
 
-# ========== UI ==========
-def display_recipe(recipe: Dict[str, Any], servings: int):
-    st.markdown(f"### 🍴 {recipe['title']}")
-    orig_servings = int(recipe.get("servings", 1) or 1)
-    scaled_ingredients = scale_ingredients(recipe.get("ingredients", []), orig_servings, servings)
+def get_favorites():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT recipe_id FROM favorites ORDER BY added_ts DESC")
+    res = [row[0] for row in c.fetchall()]
+    conn.close()
+    return res
 
-    st.caption(f"Original Servings: {orig_servings} → Adjusted for {servings} serving(s)")
+# ---------- RECOMMENDATIONS ----------
+def recommend_from_ratings(recipes, user_ratings, top_n=6):
+    liked = [rid for rid, r in user_ratings.items() if r >= 4]
+    if not liked:
+        return []
+    liked_meta = [next((rr for rr in recipes if rr["id"] == rid), None) for rid in liked]
+    cuisines, diets = {}, {}
+    for m in liked_meta:
+        if not m:
+            continue
+        cuisines[m.get("cuisine", "unknown")] = cuisines.get(m.get("cuisine", "unknown"), 0) + 1
+        for d in m.get("dietary", []):
+            diets[d] = diets.get(d, 0) + 1
+    scored = []
+    for r in recipes:
+        score = cuisines.get(r.get("cuisine", "unknown"), 0)
+        for d in r.get("dietary", []):
+            score += diets.get(d, 0)
+        scored.append((score, r))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [s[1] for s in scored if s[0] > 0][:top_n]
 
-    st.subheader("📝 Ingredients")
-    for i in scaled_ingredients:
-        st.markdown(f"- {i}")
-
-    st.subheader("👨‍🍳 Instructions")
-    for idx, step in enumerate(recipe.get("steps", []), 1):
-        st.markdown(f"**Step {idx}:** {step}")
-
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("❤️ Add Favorite", key=f"fav_{recipe['id']}"):
-            add_favorite(recipe['id'], recipe['title'])
-            st.success("Added to favorites!")
-            st.rerun()
-    with col2:
-        rating_val = st.slider("Rate Recipe", 0, 5, get_ratings().get(recipe["id"], 0), key=f"rate_{recipe['id']}")
-        if st.button("Save Rating", key=f"save_rate_{recipe['id']}"):
-            set_rating(recipe['id'], rating_val)
-            st.success("Rating saved!")
-    with col3:
-        if st.button("🗑️ Remove Favorite", key=f"unfav_{recipe['id']}"):
-            remove_favorite(recipe['id'])
-            st.info("Removed from favorites")
-            st.rerun()
-
-# ========== MAIN ==========
+# ---------- MAIN APP ----------
 def main():
     init_db()
-    st.title("🍽️ Smart Recipe Generator")
+    st.title("🍽️ Smart Recipe Generator — Global Servings Version")
+    st.markdown("Recipes automatically scale ingredient quantities based on your selected servings.")
+
     recipes = load_recipes()
-    if not recipes:
-        st.error("No recipes found.")
-        return
 
-    with st.sidebar:
-        st.header("⭐ Your Favorites")
-        favs = get_favorites()
-        if favs:
-            for f in favs:
-                st.write(f"**{f['title']}**")
-                st.caption(f"Added on {f['added']}")
+    with st.form("search_form"):
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            ing_text = st.text_input("Enter ingredients (comma-separated)", placeholder="e.g. bread, tomato, cheese")
+            common_list = sorted({i for r in recipes for i in r.get("ingredients", [])})[:80]
+            selected = st.multiselect("Or select ingredients", options=common_list, default=[])
+        with col2:
+            servings = st.number_input("Servings (default 1)", min_value=1, value=1, step=1)
+            dietary = st.selectbox("Dietary preference", ["Any", "Vegetarian", "Vegan", "Gluten-Free", "None"])
+            difficulty = st.selectbox("Difficulty", ["Any", "Easy", "Medium", "Hard"])
+            max_time = st.slider("Max cooking time (min)", 5, 240, 60)
+            max_results = st.slider("Max results", 3, 12, 6)
+        submitted = st.form_submit_button("Find Recipes 🚀")
+
+    text_ings = [i.strip() for i in ing_text.split(",") if i.strip()]
+    all_selected = list({*(text_ings + selected)})
+
+    dietary_filter = None if dietary in ("Any", "None") else dietary.lower()
+    difficulty_filter = None if difficulty == "Any" else difficulty.lower()
+
+    if submitted:
+        if not all_selected:
+            st.warning("Please provide at least one ingredient.")
         else:
-            st.info("No favorites yet!")
+            with st.spinner("Matching recipes..."):
+                matches = match_recipes(all_selected, recipes, dietary=dietary_filter,
+                                        difficulty=difficulty_filter, max_time=max_time, max_results=max_results)
+            if not matches:
+                st.info("No matches found. Try other ingredients or remove filters.")
+            else:
+                st.success(f"Found {len(matches)} recipes (scaled for {servings} serving{'s' if servings>1 else ''}).")
+                for r in matches:
+                    with st.expander(f"{r['title']} — {r.get('time_minutes','?')} min — {r.get('difficulty','?')}"):
+                        st.write(f"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}")
+                        orig_serv = r.get('servings', 1) or 1
+                        try:
+                            orig_serv = int(orig_serv)
+                        except Exception:
+                            orig_serv = 1
+                        ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, servings)
+                        st.write("**Ingredients (scaled):**")
+                        for i in ing_list:
+                            word = (i.split()[0] if i else "").strip(",()")
+                            subs = suggest_substitutions(word)
+                            if subs:
+                                st.write(f"- {i}  (substitutes: {', '.join(subs)})")
+                            else:
+                                st.write(f"- {i}")
+                        st.write("**Instructions:**")
+                        for idx, step in enumerate(r.get('steps', []), 1):
+                            st.write(f"{idx}. {step}")
+                        st.write("**Nutrition:**")
+                        for k, v in r.get('nutrition', {}).items():
+                            st.write(f"- {k}: {v}")
 
-    servings = st.number_input("Select Servings", min_value=1, max_value=20, value=2, step=1)
+                        c1, c2, c3 = st.columns([1,1,1])
+                        with c1:
+                            if st.button("❤️ Save Favorite", key=f"fav_{r['id']}"):
+                                add_favorite(r['id']); st.success("Added to favorites")
+                        with c2:
+                            cur_ratings = get_user_ratings().get(r['id'], 0)
+                            idx = cur_ratings if isinstance(cur_ratings, int) and 0 <= cur_ratings <= 5 else 0
+                            rating = st.selectbox("Rate (0–5)", [0,1,2,3,4,5], index=idx, key=f"rate_{r['id']}")
+                            if st.button("Submit Rating", key=f"rate_btn_{r['id']}"):
+                                set_rating(r['id'], rating); st.success("Thanks for rating!")
+                        with c3:
+                            if st.button("🗑️ Remove Favorite", key=f"unfav_{r['id']}"):
+                                remove_favorite(r['id']); st.info("Removed from favorites")
 
-    ing_input = st.text_input("Enter ingredients (comma-separated):", "tomato, onion, cheese")
-
-    if st.button("Find Recipes"):
-        ing_list = [i.strip().lower() for i in ing_input.split(",") if i.strip()]
-        if not ing_list:
-            st.warning("Please enter at least one ingredient.")
-            return
-
-        matches = [r for r in recipes if any(ing in " ".join(r["ingredients"]).lower() for ing in ing_list)]
-
-        if not matches:
-            st.info("No recipes found.")
-        else:
-            st.success(f"Found {len(matches)} recipes for {servings} serving(s):")
-            for r in matches:
-                with st.expander(f"{r['title']} ({r.get('time_minutes','?')} min)"):
-                    display_recipe(r, servings)
-
+    st.sidebar.header("⭐ Favorites & Suggestions")
+    favs = get_favorites()
+    if favs:
+        recipes_map = {r['id']: r for r in recipes}
+        for fid in favs:
+            if fid in recipes_map:
+                st.sidebar.write(f"- {recipes_map[fid]['title']} ({recipes_map[fid].get('time_minutes','?')} min)")
+    else:
+        st.sidebar.info("No favorites yet.")
+    st.sidebar.markdown("---")
+    ur = get_user_ratings()
+    recs = recommend_from_ratings(recipes, ur, top_n=6)
+    if recs:
+        st.sidebar.subheader("Recommended for you")
+        for rr in recs:
+            st.sidebar.write(f"- {rr['title']} ({rr.get('cuisine','')})")
+    else:
+        st.sidebar.caption("Rate recipes to get personalized suggestions.")
 
 if __name__ == "__main__":
     main()

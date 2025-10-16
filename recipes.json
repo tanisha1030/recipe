@@ -1,0 +1,644 @@
+[
+  {
+    "id": "R001",
+    "title": "Classic Pancakes",
+    "cuisine": "American",
+    "ingredients": [
+      "flour",
+      "milk",
+      "egg",
+      "baking powder",
+      "salt",
+      "butter"
+    ],
+    "steps": [
+      "Whisk together flour, baking powder, and salt.",
+      "Beat egg and mix with milk, then combine with dry ingredients.",
+      "Cook batter on a greased skillet until golden on both sides."
+    ],
+    "time_minutes": 20,
+    "difficulty": "Easy",
+    "servings": 4,
+    "nutrition": {
+      "calories": 220,
+      "protein": "6g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R002",
+    "title": "Tomato Omelette",
+    "cuisine": "Indian",
+    "ingredients": [
+      "egg",
+      "tomato",
+      "onion",
+      "salt",
+      "pepper",
+      "oil"
+    ],
+    "steps": [
+      "Beat eggs with salt and pepper.",
+      "Stir in chopped tomato and onion.",
+      "Cook on a pan until set and golden."
+    ],
+    "time_minutes": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 180,
+      "protein": "12g"
+    },
+    "dietary": [
+      "Vegetarian",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R003",
+    "title": "Veg Stir Fry",
+    "cuisine": "Chinese",
+    "ingredients": [
+      "broccoli",
+      "carrot",
+      "bell pepper",
+      "soy sauce",
+      "garlic",
+      "oil"
+    ],
+    "steps": [
+      "Chop vegetables into bite-sized pieces.",
+      "Stir-fry garlic in oil, add vegetables and cook until tender-crisp.",
+      "Add soy sauce and toss to coat before serving."
+    ],
+    "time_minutes": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 150,
+      "protein": "5g"
+    },
+    "dietary": [
+      "Vegan",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R004",
+    "title": "Grilled Cheese Sandwich",
+    "cuisine": "American",
+    "ingredients": [
+      "bread",
+      "cheese",
+      "butter"
+    ],
+    "steps": [
+      "Butter the outside of two bread slices.",
+      "Place cheese between slices and grill until golden and cheese melts."
+    ],
+    "time_minutes": 8,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 320,
+      "protein": "10g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R005",
+    "title": "Chicken Curry",
+    "cuisine": "Indian",
+    "ingredients": [
+      "chicken",
+      "onion",
+      "tomato",
+      "garlic",
+      "spices",
+      "oil"
+    ],
+    "steps": [
+      "Sauté onions until golden, add garlic and spices.",
+      "Add tomatoes and cook until soft, then add chicken and simmer until cooked through."
+    ],
+    "time_minutes": 40,
+    "difficulty": "Medium",
+    "servings": 4,
+    "nutrition": {
+      "calories": 300,
+      "protein": "25g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R006",
+    "title": "Chickpea Salad",
+    "cuisine": "Mediterranean",
+    "ingredients": [
+      "chickpeas",
+      "cucumber",
+      "tomato",
+      "olive oil",
+      "lemon",
+      "salt"
+    ],
+    "steps": [
+      "Rinse chickpeas and chop vegetables.",
+      "Toss everything with olive oil and lemon juice."
+    ],
+    "time_minutes": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 250,
+      "protein": "10g"
+    },
+    "dietary": [
+      "Vegan",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R007",
+    "title": "Spaghetti Aglio e Olio",
+    "cuisine": "Italian",
+    "ingredients": [
+      "spaghetti",
+      "garlic",
+      "olive oil",
+      "chili flakes",
+      "parsley",
+      "salt"
+    ],
+    "steps": [
+      "Cook spaghetti until al dente.",
+      "Sauté garlic in olive oil, add chili flakes, toss with pasta and garnish with parsley."
+    ],
+    "time_minutes": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 400,
+      "protein": "12g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R008",
+    "title": "Masala Scrambled Eggs",
+    "cuisine": "Indian",
+    "ingredients": [
+      "egg",
+      "onion",
+      "tomato",
+      "turmeric",
+      "salt",
+      "oil"
+    ],
+    "steps": [
+      "Sauté onions, add tomatoes and spices.",
+      "Pour beaten eggs and scramble until cooked."
+    ],
+    "time_minutes": 8,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 190,
+      "protein": "13g"
+    },
+    "dietary": [
+      "Gluten-Free",
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R009",
+    "title": "Fruit Yogurt Parfait",
+    "cuisine": "International",
+    "ingredients": [
+      "yogurt",
+      "mixed fruits",
+      "honey",
+      "granola"
+    ],
+    "steps": [
+      "Layer yogurt, fruits, and granola in a glass.",
+      "Drizzle honey on top and serve chilled."
+    ],
+    "time_minutes": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 220,
+      "protein": "8g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R010",
+    "title": "Bean Burrito",
+    "cuisine": "Mexican",
+    "ingredients": [
+      "tortilla",
+      "beans",
+      "cheese",
+      "salsa",
+      "lettuce"
+    ],
+    "steps": [
+      "Warm the tortilla, fill with beans, cheese, salsa, and lettuce, then roll."
+    ],
+    "time_minutes": 12,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 450,
+      "protein": "15g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R011",
+    "title": "Paneer Butter Masala",
+    "cuisine": "Indian",
+    "ingredients": [
+      "paneer",
+      "tomato",
+      "butter",
+      "cream",
+      "spices",
+      "onion"
+    ],
+    "steps": [
+      "Sauté onions, add tomato puree and spices, then add paneer and simmer in butter and cream."
+    ],
+    "time_minutes": 30,
+    "difficulty": "Medium",
+    "servings": 3,
+    "nutrition": {
+      "calories": 350,
+      "protein": "18g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R012",
+    "title": "Grilled Salmon",
+    "cuisine": "International",
+    "ingredients": [
+      "salmon",
+      "lemon",
+      "olive oil",
+      "salt",
+      "pepper"
+    ],
+    "steps": [
+      "Season salmon with salt, pepper and lemon, grill until flaky."
+    ],
+    "time_minutes": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 280,
+      "protein": "22g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R013",
+    "title": "Vegetable Biryani",
+    "cuisine": "Indian",
+    "ingredients": [
+      "rice",
+      "mixed vegetables",
+      "spices",
+      "onion",
+      "yogurt"
+    ],
+    "steps": [
+      "Cook spiced vegetables, layer with partially cooked rice and steam together."
+    ],
+    "time_minutes": 50,
+    "difficulty": "Medium",
+    "servings": 4,
+    "nutrition": {
+      "calories": 420,
+      "protein": "8g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R014",
+    "title": "Beef Stir Fry",
+    "cuisine": "Asian",
+    "ingredients": [
+      "beef",
+      "broccoli",
+      "soy sauce",
+      "garlic",
+      "oil"
+    ],
+    "steps": [
+      "Slice beef thinly, stir-fry with garlic and vegetables, add soy sauce to finish."
+    ],
+    "time_minutes": 20,
+    "difficulty": "Medium",
+    "servings": 2,
+    "nutrition": {
+      "calories": 450,
+      "protein": "30g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R015",
+    "title": "Caprese Salad",
+    "cuisine": "Italian",
+    "ingredients": [
+      "tomato",
+      "mozzarella",
+      "basil",
+      "olive oil",
+      "salt"
+    ],
+    "steps": [
+      "Slice tomato and mozzarella, layer with basil, drizzle olive oil and season."
+    ],
+    "time_minutes": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 200,
+      "protein": "10g"
+    },
+    "dietary": [
+      "Vegetarian",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R016",
+    "title": "Tuna Sandwich",
+    "cuisine": "International",
+    "ingredients": [
+      "bread",
+      "tuna",
+      "mayonnaise",
+      "onion",
+      "lettuce"
+    ],
+    "steps": [
+      "Mix tuna with mayonnaise and chopped onion, assemble sandwich with lettuce."
+    ],
+    "time_minutes": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 320,
+      "protein": "20g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R017",
+    "title": "Mushroom Risotto",
+    "cuisine": "Italian",
+    "ingredients": [
+      "arborio rice",
+      "mushroom",
+      "parmesan",
+      "onion",
+      "white wine",
+      "butter"
+    ],
+    "steps": [
+      "Sauté onion and mushrooms, add rice and wine, gradually add stock and finish with parmesan."
+    ],
+    "time_minutes": 35,
+    "difficulty": "Medium",
+    "servings": 2,
+    "nutrition": {
+      "calories": 420,
+      "protein": "12g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R018",
+    "title": "Lentil Soup",
+    "cuisine": "Middle Eastern",
+    "ingredients": [
+      "lentils",
+      "carrot",
+      "onion",
+      "garlic",
+      "cumin",
+      "olive oil"
+    ],
+    "steps": [
+      "Sauté onions and carrots, add lentils and spices, simmer until lentils are soft."
+    ],
+    "time_minutes": 30,
+    "difficulty": "Easy",
+    "servings": 4,
+    "nutrition": {
+      "calories": 180,
+      "protein": "10g"
+    },
+    "dietary": [
+      "Vegan",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R019",
+    "title": "Chicken Caesar Wrap",
+    "cuisine": "American",
+    "ingredients": [
+      "tortilla",
+      "chicken",
+      "lettuce",
+      "parmesan",
+      "caesar dressing"
+    ],
+    "steps": [
+      "Cook chicken, toss with lettuce and dressing, wrap in tortilla with parmesan."
+    ],
+    "time_minutes": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 420,
+      "protein": "28g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R020",
+    "title": "Glazed Carrots",
+    "cuisine": "International",
+    "ingredients": [
+      "carrot",
+      "butter",
+      "honey",
+      "salt"
+    ],
+    "steps": [
+      "Cook carrots in butter and honey until tender and glazed."
+    ],
+    "time_minutes": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 150,
+      "protein": "2g"
+    },
+    "dietary": [
+      "Vegetarian",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R021",
+    "title": "Avocado Toast",
+    "cuisine": "International",
+    "ingredients": [
+      "bread",
+      "avocado",
+      "salt",
+      "pepper",
+      "lemon"
+    ],
+    "steps": [
+      "Toast bread, mash avocado with salt, pepper and lemon, spread on toast."
+    ],
+    "time_minutes": 8,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 250,
+      "protein": "6g"
+    },
+    "dietary": [
+      "Vegan"
+    ]
+  },
+  {
+    "id": "R022",
+    "title": "Shrimp Pasta",
+    "cuisine": "Italian",
+    "ingredients": [
+      "pasta",
+      "shrimp",
+      "garlic",
+      "olive oil",
+      "chili flakes"
+    ],
+    "steps": [
+      "Cook pasta, sauté shrimp with garlic and chili, toss with pasta and oil."
+    ],
+    "time_minutes": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 400,
+      "protein": "22g"
+    },
+    "dietary": []
+  },
+  {
+    "id": "R023",
+    "title": "Greek Salad",
+    "cuisine": "Greek",
+    "ingredients": [
+      "tomato",
+      "cucumber",
+      "feta",
+      "olive oil",
+      "olives",
+      "onion"
+    ],
+    "steps": [
+      "Chop vegetables, combine with feta and olives, dress with olive oil."
+    ],
+    "time_minutes": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "nutrition": {
+      "calories": 220,
+      "protein": "7g"
+    },
+    "dietary": [
+      "Vegetarian",
+      "Gluten-Free"
+    ]
+  },
+  {
+    "id": "R024",
+    "title": "Pancit Canton (Vegetable)",
+    "cuisine": "Filipino",
+    "ingredients": [
+      "egg noodles",
+      "cabbage",
+      "carrot",
+      "soy sauce",
+      "garlic",
+      "oil"
+    ],
+    "steps": [
+      "Stir-fry garlic and vegetables, add noodles and soy sauce, toss until combined."
+    ],
+    "time_minutes": 25,
+    "difficulty": "Medium",
+    "servings": 3,
+    "nutrition": {
+      "calories": 360,
+      "protein": "9g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  },
+  {
+    "id": "R025",
+    "title": "Chocolate Mug Cake",
+    "cuisine": "International",
+    "ingredients": [
+      "flour",
+      "cocoa powder",
+      "sugar",
+      "milk",
+      "egg",
+      "butter"
+    ],
+    "steps": [
+      "Mix ingredients in a mug and microwave for 1-2 minutes until set."
+    ],
+    "time_minutes": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "nutrition": {
+      "calories": 330,
+      "protein": "5g"
+    },
+    "dietary": [
+      "Vegetarian"
+    ]
+  }
+]

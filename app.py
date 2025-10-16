@@ -65,7 +65,6 @@ def _parse_number_prefix(s: str):
         return num, rest
     return None, s
 
-
 def scale_ingredients(ingredients: List[str], original_servings: int, new_servings: int) -> List[str]:
     """
     Scales ingredient lines intelligently. If no numeric quantity exists,
@@ -101,7 +100,6 @@ def scale_ingredients(ingredients: List[str], original_servings: int, new_servin
                 scaled.append(ing)
     return scaled
 
-
 def suggest_substitutions(ingredient: str):
     ingredient = (ingredient or "").lower()
     if ingredient in SUBSTITUTIONS:
@@ -110,7 +108,6 @@ def suggest_substitutions(ingredient: str):
     if close:
         return SUBSTITUTIONS[close[0]]
     return []
-
 
 # ---------- MATCHING ----------
 def match_recipes(available_ingredients: List[str], recipes: List[Dict],
@@ -157,7 +154,6 @@ def match_recipes(available_ingredients: List[str], recipes: List[Dict],
 
     return deduped
 
-
 # ---------- FAVORITES / RATINGS ----------
 def add_favorite(recipe_id):
     conn = sqlite3.connect(DB_PATH)
@@ -196,7 +192,6 @@ def get_favorites():
     conn.close()
     return res
 
-
 # ---------- RECOMMENDATIONS ----------
 def recommend_from_ratings(recipes, user_ratings, top_n=6):
     liked = [rid for rid, r in user_ratings.items() if r >= 4]
@@ -219,12 +214,11 @@ def recommend_from_ratings(recipes, user_ratings, top_n=6):
     scored.sort(key=lambda x: x[0], reverse=True)
     return [s[1] for s in scored if s[0] > 0][:top_n]
 
-
 # ---------- MAIN APP ----------
 def main():
     init_db()
-    st.title("🍽️ Smart Recipe Generator — Final Version")
-    st.markdown("Improved matching, deduplication, and global serving scaling.")
+    st.title("🍽️ Smart Recipe Generator — Global Servings Version")
+    st.markdown("Recipes automatically scale ingredient quantities based on your selected servings.")
 
     recipes = load_recipes()
 
@@ -262,14 +256,12 @@ def main():
                 for r in matches:
                     with st.expander(f"{r['title']} — {r.get('time_minutes','?')} min — {r.get('difficulty','?')}"):
                         st.write(f"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}")
-
                         orig_serv = r.get('servings', 1) or 1
                         try:
                             orig_serv = int(orig_serv)
                         except Exception:
                             orig_serv = 1
                         ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, servings)
-
                         st.write("**Ingredients (scaled):**")
                         for i in ing_list:
                             word = (i.split()[0] if i else "").strip(",()")
@@ -299,7 +291,6 @@ def main():
                             if st.button("🗑️ Remove Favorite", key=f"unfav_{r['id']}"):
                                 remove_favorite(r['id']); st.info("Removed from favorites")
 
-    # Sidebar: favorites & recommendations (unchanged)
     st.sidebar.header("⭐ Favorites & Suggestions")
     favs = get_favorites()
     if favs:
@@ -319,3 +310,5 @@ def main():
     else:
         st.sidebar.caption("Rate recipes to get personalized suggestions.")
 
+if __name__ == "__main__":
+    main()

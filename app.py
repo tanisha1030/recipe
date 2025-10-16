@@ -224,7 +224,7 @@ def recommend_from_ratings(recipes, user_ratings, top_n=6):
 def main():
     init_db()
     st.title("🍽️ Smart Recipe Generator — Final Version")
-    st.markdown("Improved matching, deduplication, scaling, and dietary accuracy.")
+    st.markdown("Improved matching, deduplication, and global serving scaling.")
 
     recipes = load_recipes()
 
@@ -235,6 +235,7 @@ def main():
             common_list = sorted({i for r in recipes for i in r.get("ingredients", [])})[:80]
             selected = st.multiselect("Or select ingredients", options=common_list, default=[])
         with col2:
+            servings = st.number_input("Servings (default 1)", min_value=1, value=1, step=1)
             dietary = st.selectbox("Dietary preference", ["Any", "Vegetarian", "Vegan", "Gluten-Free", "None"])
             difficulty = st.selectbox("Difficulty", ["Any", "Easy", "Medium", "Hard"])
             max_time = st.slider("Max cooking time (min)", 5, 240, 60)
@@ -257,17 +258,18 @@ def main():
             if not matches:
                 st.info("No matches found. Try other ingredients or remove filters.")
             else:
-                st.success(f"Found {len(matches)} recipes.")
+                st.success(f"Found {len(matches)} recipes (scaled for {servings} serving{'s' if servings>1 else ''}).")
                 for r in matches:
                     with st.expander(f"{r['title']} — {r.get('time_minutes','?')} min — {r.get('difficulty','?')}"):
                         st.write(f"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}")
+
                         orig_serv = r.get('servings', 1) or 1
                         try:
                             orig_serv = int(orig_serv)
                         except Exception:
                             orig_serv = 1
-                        new_serv = st.number_input(f"Servings (orig {orig_serv})", min_value=1, value=orig_serv, step=1, key=f"serv_{r['id']}")
-                        ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, new_serv)
+                        ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, servings)
+
                         st.write("**Ingredients (scaled):**")
                         for i in ing_list:
                             word = (i.split()[0] if i else "").strip(",()")
@@ -297,6 +299,7 @@ def main():
                             if st.button("🗑️ Remove Favorite", key=f"unfav_{r['id']}"):
                                 remove_favorite(r['id']); st.info("Removed from favorites")
 
+    # Sidebar: favorites & recommendations (unchanged)
     st.sidebar.header("⭐ Favorites & Suggestions")
     favs = get_favorites()
     if favs:
@@ -315,8 +318,4 @@ def main():
             st.sidebar.write(f"- {rr['title']} ({rr.get('cuisine','')})")
     else:
         st.sidebar.caption("Rate recipes to get personalized suggestions.")
-
-if __name__ == "__main__":
-    main()
-
 

@@ -1,8 +1,9 @@
 import streamlit as st
-import json, sqlite3, math, re
+import json, sqlite3, re
 from pathlib import Path
 from typing import List, Dict, Any
 from difflib import get_close_matches
+from fractions import Fraction
 
 st.set_page_config(page_title="Smart Recipe Generator", layout="centered", initial_sidebar_state="expanded")
 
@@ -10,7 +11,9 @@ BASE = Path(__file__).parent
 DATA_PATH = BASE / "recipes.json"
 DB_PATH = BASE / "data.db"
 
-# Simple substitution map
+# Ingredient blacklist by dietary preference
+NON_VEG_INGREDIENTS = {"egg", "chicken", "fish", "meat", "pork", "beef", "shrimp"}
+
 SUBSTITUTIONS = {
     "butter": ["oil", "margarine"],
     "milk": ["soy milk", "almond milk", "water"],
@@ -39,7 +42,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ---------- DATA LOADING ----------
+# ---------- DATA ----------
 @st.cache_data(show_spinner=False)
 def load_recipes() -> List[Dict[str, Any]]:
     with open(DATA_PATH, "r", encoding="utf-8") as f:
@@ -50,13 +53,19 @@ def match_recipes(available_ingredients: List[str], recipes: List[Dict], dietary
     available = set(i.strip().lower() for i in available_ingredients if i.strip())
     scored = []
     for r in recipes:
+        req = set(i.lower() for i in r.get("ingredients", []))
+
+        # Skip non-veg recipes if Vegetarian/Vegan filter is active
+        if dietary in ("vegetarian", "vegan"):
+            if req & NON_VEG_INGREDIENTS:
+                continue
         if dietary and dietary not in [d.lower() for d in r.get("dietary", [])]:
             continue
         if difficulty and r.get("difficulty", "").lower() != difficulty:
             continue
         if max_time and r.get("time_minutes", 0) > max_time:
             continue
-        req = set(i.lower() for i in r.get("ingredients", []))
+
         common = len(req & available)
         missing = len(req - available)
         score = common - 0.4 * missing + (0.1 * min(len(available), len(req)))
@@ -67,7 +76,7 @@ def match_recipes(available_ingredients: List[str], recipes: List[Dict], dietary
 
 # ---------- UTILITIES ----------
 def suggest_substitutions(ingredient: str):
-    ingredient = ingredient.lower()
+    ingredient = (ingredient or "").lower()
     if ingredient in SUBSTITUTIONS:
         return SUBSTITUTIONS[ingredient]
     close = get_close_matches(ingredient, SUBSTITUTIONS.keys(), n=1, cutoff=0.7)
@@ -75,20 +84,72 @@ def suggest_substitutions(ingredient: str):
         return SUBSTITUTIONS[close[0]]
     return []
 
+def _parse_number_prefix(s: str):
+    """
+    Try to parse a leading numeric quantity from a string.
+    Supports:
+     - integers and decimals: "1", "1.5"
+     - simple fractions: "1/2", "3/4"
+     - mixed numbers: "1 1/2"
+    Returns (number_float, rest_string) or (None, original_string) if no leading number found.
+    """
+    s = s.strip()
+    # Mixed number like "1 1/2 cup flour"
+    m = re.match(r'^(\d+)\s+(\d+/\d+)\b(.*)$', s)
+    if m:
+        whole = int(m.group(1))
+        frac = Fraction(m.group(2))
+        rest = m.group(3).strip()
+        return float(whole + frac), rest
+    # Simple fraction "1/2 cup"
+    m = re.match(r'^(\d+/\d+)\b(.*)$', s)
+    if m:
+        frac = Fraction(m.group(1))
+        rest = m.group(2).strip()
+        return float(frac), rest
+    # Decimal or integer possibly with unit: "1.5 cup", "2cup"
+    m = re.match(r'^(\d+(\.\d+)?)(?:\s*([a-zA-Z\/]+))?\s*(.*)$', s)
+    if m:
+        num = float(m.group(1))
+        unit = m.group(3) or ""
+        rest = m.group(4).strip()
+        # combine unit into rest for display unless rest already contains it
+        if unit and (rest == "" or not rest.startswith(unit)):
+            rest = (unit + " " + rest).strip()
+        return num, rest
+    return None, s
+
 def scale_ingredients(ingredients: List[str], original_servings: int, new_servings: int) -> List[str]:
+    """
+    Scales ingredient lines. Non-numeric ingredients are returned with a note.
+    This function is defensive and will not raise.
+    """
     scaled = []
-    ratio = new_servings / original_servings if original_servings else 1
-    qty_re = re.compile(r"^(\d+(\.\d+)?)(\s?)([a-zA-Z\/]+)?\s*(.*)$")
+    try:
+        orig = int(original_servings) if original_servings else 1
+    except Exception:
+        orig = 1
+    try:
+        new = int(new_servings) if new_servings else orig
+    except Exception:
+        new = orig
+    ratio = new / orig if orig else 1.0
+
     for ing in ingredients:
-        m = qty_re.match(ing.strip())
-        if m:
-            num = float(m.group(1))
-            rest = m.group(5)
-            scaled_num = round(num * ratio, 2)
-            unit = m.group(4) or ""
-            scaled.append(f"{scaled_num} {unit} {rest}".strip())
-        else:
-            scaled.append(f"{ing} (adjust proportionally by {ratio:.2f}x)")
+        try:
+            num, rest = _parse_number_prefix(ing)
+            if num is None:
+                # no numeric prefix
+                scaled.append(f"{ing} (adjust proportionally by {ratio:.2f}×)")
+            else:
+                scaled_num = round(num * ratio, 2)
+                if rest:
+                    scaled.append(f"{scaled_num} {rest}".strip())
+                else:
+                    scaled.append(f"{scaled_num}".strip())
+        except Exception:
+            # fallback: non-crashing behavior
+            scaled.append(f"{ing} (adjust proportionally by {ratio:.2f}×)")
     return scaled
 
 # ---------- FAVORITES / RATINGS ----------
@@ -154,8 +215,8 @@ def recommend_from_ratings(recipes, user_ratings, top_n=6):
 # ---------- MAIN APP ----------
 def main():
     init_db()
-    st.title("🍽️ Smart Recipe Generator — Full Version")
-    st.markdown("Find recipes using ingredients, filters, serving-size scaling, substitutions, and image upload (demo).")
+    st.title("🍽️ Smart Recipe Generator")
+    st.markdown("Generate recipes from your ingredients. Filter by difficulty, cooking time, and dietary preference. Save favorites & rate recipes!")
 
     recipes = load_recipes()
 
@@ -165,7 +226,7 @@ def main():
         with col1:
             ing_text = st.text_input(
                 "Enter ingredients (comma-separated)",
-                placeholder="e.g. egg, milk, flour"
+                placeholder="e.g. tomato, onion, cheese"
             )
             common_list = sorted({i for r in recipes for i in r.get("ingredients", [])})[:60]
             selected = st.multiselect("Or select ingredients from list", options=common_list, default=[])
@@ -176,29 +237,16 @@ def main():
             max_results = st.slider("Max results", 3, 12, 6)
         submitted = st.form_submit_button("Find Recipes 🚀")
 
-    # --- Image upload (demo) ---
-    st.markdown("### Or upload a photo of ingredients (demo image recognition)")
-    uploaded = st.file_uploader("Upload image (jpg/png)", type=["jpg", "jpeg", "png"])
-    recognized_ings = []
-    if uploaded:
-        with st.spinner("Recognizing ingredients (demo)..."):
-            name = uploaded.name.lower()
-            for kw in ["egg", "tomato", "onion", "potato", "milk", "cheese", "garlic", "chicken", "broccoli", "carrot", "banana"]:
-                if kw in name:
-                    recognized_ings.append(kw)
-            if not recognized_ings:
-                recognized_ings = ["flour", "salt", "oil"]
-
     # Combine inputs
     text_ings = [i.strip() for i in ing_text.split(",") if i.strip()]
-    all_selected = list({*(text_ings + selected + recognized_ings)})
+    all_selected = list({*(text_ings + selected)})
 
     dietary_filter = None if dietary in ("Any", "None") else dietary.lower()
     difficulty_filter = None if difficulty == "Any" else difficulty.lower()
 
     if submitted:
         if not all_selected:
-            st.warning("Please provide at least one ingredient (text, select, or image).")
+            st.warning("Please provide at least one ingredient.")
         else:
             with st.spinner("Finding matching recipes..."):
                 matches = match_recipes(all_selected, recipes, dietary=dietary_filter,
@@ -210,12 +258,25 @@ def main():
                 for r in matches:
                     with st.expander(f"{r['title']} — {r.get('time_minutes','?')} min — {r.get('difficulty','?')}"):
                         st.write(f"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}")
-                        orig_serv = r.get('servings', 1)
-                        new_serv = st.number_input(f"Servings (orig {orig_serv})", min_value=1, value=orig_serv, key=f"serv_{r['id']}")
-                        ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, new_serv)
+                        orig_serv = r.get('servings', 1) or 1
+                        # ensure orig_serv is an integer
+                        try:
+                            orig_serv = int(orig_serv)
+                        except Exception:
+                            orig_serv = 1
+
+                        # use an integer number_input and ensure stable key
+                        new_serv = st.number_input(f"Servings (orig {orig_serv})", min_value=1, value=orig_serv, step=1, key=f"serv_{r['id']}")
+                        try:
+                            ing_list = scale_ingredients(r.get('ingredients', []), orig_serv, new_serv)
+                        except Exception as e:
+                            # defensive fallback — do not crash UI
+                            st.error("Could not scale ingredient quantities for this recipe. Showing original ingredient lines.")
+                            ing_list = list(r.get('ingredients', []))
+
                         st.write("**Ingredients (scaled):**")
                         for i in ing_list:
-                            word = i.split()[0] if i else ""
+                            word = (i.split()[0] if i else "").strip(",()")
                             subs = suggest_substitutions(word)
                             if subs:
                                 st.write(f"- {i}  (substitutes: {', '.join(subs)})")
@@ -236,7 +297,9 @@ def main():
                                 st.success("Added to favorites")
                         with c2:
                             cur_ratings = get_user_ratings().get(r['id'], 0)
-                            rating = st.selectbox("Rate (0–5)", [0, 1, 2, 3, 4, 5], index=cur_ratings, key=f"rate_{r['id']}")
+                            # ensure index within bounds
+                            idx = cur_ratings if isinstance(cur_ratings, int) and 0 <= cur_ratings <= 5 else 0
+                            rating = st.selectbox("Rate (0–5)", [0, 1, 2, 3, 4, 5], index=idx, key=f"rate_{r['id']}")
                             if st.button("Submit Rating", key=f"rate_btn_{r['id']}"):
                                 set_rating(r['id'], rating)
                                 st.success("Thanks for rating!")
@@ -266,9 +329,5 @@ def main():
     else:
         st.sidebar.caption("Rate recipes to get personalized suggestions.")
 
-    st.sidebar.markdown("---")
-    st.sidebar.caption("Image recognition is a demo. Add API key in code to use a real Vision API.")
-
-# ---------- RUN ----------
 if __name__ == "__main__":
     main()

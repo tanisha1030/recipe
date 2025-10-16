@@ -228,7 +228,7 @@ def main():
                 st.success(f"Found {len(matches)} recipes.")
                 for r in matches:
                     with st.expander(f"{r['title']} — {r.get('time_minutes','?')} min — {r.get('difficulty','?')}"):
-                        st.write(f\"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}\")
+                        st.write(f"**Cuisine:** {r.get('cuisine','N/A')} • **Dietary:** {', '.join(r.get('dietary',[]))}")
                         orig_serv = r.get('servings', 1) or 1
                         try:
                             orig_serv = int(orig_serv)

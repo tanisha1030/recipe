@@ -1,5 +1,6 @@
 [
   {
+    "id": "R001",
     "title": "Classic Pancakes",
     "ingredients": [
       "flour",
@@ -10,9 +11,12 @@
       "butter"
     ],
     "steps": [
-      "Mix dry ingredients.",
-      "Whisk milk and egg.",
-      "Combine and cook on skillet."
+      "In a large bowl, whisk together flour, baking powder, and salt.",
+      "In a separate bowl, beat the egg and mix with milk until smooth.",
+      "Gradually pour the wet mixture into the dry ingredients while stirring until no lumps remain.",
+      "Heat a non-stick skillet over medium heat and lightly grease with butter.",
+      "Pour 1/4 cup of batter for each pancake and cook until bubbles form, then flip and cook the other side until golden.",
+      "Serve warm with butter, honey, or maple syrup."
     ],
     "time_minutes": 20,
     "difficulty": "Easy",
@@ -23,11 +27,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R001"
+    ]
   },
   {
-    "title": "Tomato Omelette (2)",
+    "id": "R002",
+    "title": "Tomato Omelette",
     "ingredients": [
       "egg",
       "tomato",
@@ -37,9 +41,11 @@
       "oil"
     ],
     "steps": [
-      "Beat eggs.",
-      "Chop tomato and onion.",
-      "Cook everything together."
+      "Crack the eggs into a bowl and whisk with salt and pepper.",
+      "Chop tomatoes and onions finely and mix them into the beaten eggs.",
+      "Heat oil in a pan over medium heat and pour the mixture in.",
+      "Cook for 2-3 minutes until the bottom is set, then flip and cook the other side.",
+      "Serve warm with bread or toast."
     ],
     "time_minutes": 10,
     "difficulty": "Easy",
@@ -51,11 +57,11 @@
     "dietary": [
       "Vegetarian",
       "Gluten-Free"
-    ],
-    "id": "R002"
+    ]
   },
   {
-    "title": "Veg Stir Fry (3)",
+    "id": "R003",
+    "title": "Veg Stir Fry",
     "ingredients": [
       "broccoli",
       "carrot",
@@ -65,9 +71,11 @@
       "oil"
     ],
     "steps": [
-      "Chop veggies.",
-      "Stir fry garlic.",
-      "Add veggies and sauce."
+      "Chop all vegetables into bite-sized pieces.",
+      "Heat oil in a wok and add minced garlic.",
+      "Add all the vegetables and stir-fry on high heat for 4-5 minutes.",
+      "Pour in soy sauce and mix until evenly coated.",
+      "Serve hot with rice or noodles."
     ],
     "time_minutes": 15,
     "difficulty": "Easy",
@@ -79,20 +87,21 @@
     "dietary": [
       "Vegan",
       "Gluten-Free"
-    ],
-    "id": "R003"
+    ]
   },
   {
-    "title": "Grilled Cheese Sandwich (4)",
+    "id": "R004",
+    "title": "Grilled Cheese Sandwich",
     "ingredients": [
       "bread",
       "cheese",
       "butter"
     ],
     "steps": [
-      "Butter bread.",
-      "Place cheese between slices.",
-      "Grill until golden."
+      "Spread butter on both sides of the bread slices.",
+      "Place cheese between two slices to form a sandwich.",
+      "Heat a pan and cook each side until golden brown and the cheese melts.",
+      "Serve hot with ketchup or soup."
     ],
     "time_minutes": 8,
     "difficulty": "Easy",
@@ -103,11 +112,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R004"
+    ]
   },
   {
-    "title": "Chicken Curry (5)",
+    "id": "R005",
+    "title": "Chicken Curry",
     "ingredients": [
       "chicken",
       "onion",
@@ -117,9 +126,12 @@
       "oil"
     ],
     "steps": [
-      "Saute onions.",
-      "Add spices and tomato.",
-      "Add chicken and simmer."
+      "Heat oil in a pan and saut\u00e9 chopped onions until golden.",
+      "Add minced garlic and spices; stir for 30 seconds.",
+      "Add tomatoes and cook until soft and blended.",
+      "Add chicken pieces and stir until coated with the sauce.",
+      "Cover and cook for 25-30 minutes until the chicken is fully cooked.",
+      "Garnish with coriander and serve with rice or roti."
     ],
     "time_minutes": 40,
     "difficulty": "Medium",
@@ -130,11 +142,11 @@
     },
     "dietary": [
       "None"
-    ],
-    "id": "R005"
+    ]
   },
   {
-    "title": "Chickpea Salad (6)",
+    "id": "R006",
+    "title": "Chickpea Salad",
     "ingredients": [
       "chickpeas",
       "cucumber",
@@ -144,7 +156,11 @@
       "salt"
     ],
     "steps": [
-      "Mix all ingredients and serve."
+      "Rinse and drain the chickpeas.",
+      "Chop cucumber and tomato into small cubes.",
+      "Combine all in a bowl and drizzle with olive oil and lemon juice.",
+      "Season with salt and toss well.",
+      "Serve chilled."
     ],
     "time_minutes": 10,
     "difficulty": "Easy",
@@ -156,11 +172,11 @@
     "dietary": [
       "Vegan",
       "Gluten-Free"
-    ],
-    "id": "R006"
+    ]
   },
   {
-    "title": "Spaghetti Aglio e Olio (7)",
+    "id": "R007",
+    "title": "Spaghetti Aglio e Olio",
     "ingredients": [
       "spaghetti",
       "garlic",
@@ -170,9 +186,11 @@
       "salt"
     ],
     "steps": [
-      "Boil pasta.",
-      "Saute garlic in oil.",
-      "Toss together with chili and parsley."
+      "Boil spaghetti in salted water until al dente, then drain.",
+      "Heat olive oil in a pan and add sliced garlic and chili flakes.",
+      "Saut\u00e9 until fragrant and lightly golden.",
+      "Add cooked pasta and toss to coat evenly.",
+      "Garnish with chopped parsley and serve hot."
     ],
     "time_minutes": 15,
     "difficulty": "Easy",
@@ -183,11 +201,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R007"
+    ]
   },
   {
-    "title": "Masala Scrambled Eggs (8)",
+    "id": "R008",
+    "title": "Masala Scrambled Eggs",
     "ingredients": [
       "egg",
       "onion",
@@ -197,8 +215,11 @@
       "oil"
     ],
     "steps": [
-      "Beat eggs with spices.",
-      "Cook with onion and tomato."
+      "Heat oil in a pan and saut\u00e9 onions until translucent.",
+      "Add chopped tomatoes and cook until soft.",
+      "Beat eggs with salt and turmeric, then pour into the pan.",
+      "Stir continuously until eggs are softly scrambled.",
+      "Serve hot with toast or roti."
     ],
     "time_minutes": 8,
     "difficulty": "Easy",
@@ -210,11 +231,11 @@
     "dietary": [
       "Gluten-Free",
       "Vegetarian"
-    ],
-    "id": "R008"
+    ]
   },
   {
-    "title": "Fruit Yogurt Parfait (9)",
+    "id": "R009",
+    "title": "Fruit Yogurt Parfait",
     "ingredients": [
       "yogurt",
       "mixed fruits",
@@ -222,8 +243,9 @@
       "granola"
     ],
     "steps": [
-      "Layer yogurt, fruits and granola.",
-      "Drizzle honey."
+      "Chop fruits such as apple, banana, and berries.",
+      "In a glass, layer yogurt, fruits, and granola.",
+      "Drizzle honey on top and serve immediately."
     ],
     "time_minutes": 5,
     "difficulty": "Easy",
@@ -234,11 +256,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R009"
+    ]
   },
   {
-    "title": "Bean Burrito (10)",
+    "id": "R010",
+    "title": "Bean Burrito",
     "ingredients": [
       "tortilla",
       "beans",
@@ -247,8 +269,9 @@
       "lettuce"
     ],
     "steps": [
-      "Fill tortilla with beans and toppings.",
-      "Roll and serve."
+      "Warm the tortilla on a pan for 30 seconds on each side.",
+      "Spread a layer of beans, followed by cheese, salsa, and lettuce.",
+      "Roll the tortilla tightly and serve warm."
     ],
     "time_minutes": 12,
     "difficulty": "Easy",
@@ -259,11 +282,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R010"
+    ]
   },
   {
-    "title": "Classic Pancakes (11)",
+    "id": "R011",
+    "title": "Classic Pancakes (v1)",
     "ingredients": [
       "flour",
       "milk",
@@ -273,9 +296,12 @@
       "butter"
     ],
     "steps": [
-      "Mix dry ingredients.",
-      "Whisk milk and egg.",
-      "Combine and cook on skillet."
+      "In a large bowl, whisk together flour, baking powder, and salt.",
+      "In a separate bowl, beat the egg and mix with milk until smooth.",
+      "Gradually pour the wet mixture into the dry ingredients while stirring until no lumps remain.",
+      "Heat a non-stick skillet over medium heat and lightly grease with butter.",
+      "Pour 1/4 cup of batter for each pancake and cook until bubbles form, then flip and cook the other side until golden.",
+      "Serve warm with butter, honey, or maple syrup."
     ],
     "time_minutes": 20,
     "difficulty": "Easy",
@@ -286,11 +312,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R011"
+    ]
   },
   {
-    "title": "Tomato Omelette (12)",
+    "id": "R012",
+    "title": "Tomato Omelette (v2)",
     "ingredients": [
       "egg",
       "tomato",
@@ -300,9 +326,11 @@
       "oil"
     ],
     "steps": [
-      "Beat eggs.",
-      "Chop tomato and onion.",
-      "Cook everything together."
+      "Crack the eggs into a bowl and whisk with salt and pepper.",
+      "Chop tomatoes and onions finely and mix them into the beaten eggs.",
+      "Heat oil in a pan over medium heat and pour the mixture in.",
+      "Cook for 2-3 minutes until the bottom is set, then flip and cook the other side.",
+      "Serve warm with bread or toast."
     ],
     "time_minutes": 10,
     "difficulty": "Easy",
@@ -314,11 +342,11 @@
     "dietary": [
       "Vegetarian",
       "Gluten-Free"
-    ],
-    "id": "R012"
+    ]
   },
   {
-    "title": "Veg Stir Fry (13)",
+    "id": "R013",
+    "title": "Veg Stir Fry (v3)",
     "ingredients": [
       "broccoli",
       "carrot",
@@ -328,9 +356,11 @@
       "oil"
     ],
     "steps": [
-      "Chop veggies.",
-      "Stir fry garlic.",
-      "Add veggies and sauce."
+      "Chop all vegetables into bite-sized pieces.",
+      "Heat oil in a wok and add minced garlic.",
+      "Add all the vegetables and stir-fry on high heat for 4-5 minutes.",
+      "Pour in soy sauce and mix until evenly coated.",
+      "Serve hot with rice or noodles."
     ],
     "time_minutes": 15,
     "difficulty": "Easy",
@@ -342,20 +372,21 @@
     "dietary": [
       "Vegan",
       "Gluten-Free"
-    ],
-    "id": "R013"
+    ]
   },
   {
-    "title": "Grilled Cheese Sandwich (14)",
+    "id": "R014",
+    "title": "Grilled Cheese Sandwich (v4)",
     "ingredients": [
       "bread",
       "cheese",
       "butter"
     ],
     "steps": [
-      "Butter bread.",
-      "Place cheese between slices.",
-      "Grill until golden."
+      "Spread butter on both sides of the bread slices.",
+      "Place cheese between two slices to form a sandwich.",
+      "Heat a pan and cook each side until golden brown and the cheese melts.",
+      "Serve hot with ketchup or soup."
     ],
     "time_minutes": 8,
     "difficulty": "Easy",
@@ -366,11 +397,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R014"
+    ]
   },
   {
-    "title": "Chicken Curry (15)",
+    "id": "R015",
+    "title": "Chicken Curry (v5)",
     "ingredients": [
       "chicken",
       "onion",
@@ -380,9 +411,12 @@
       "oil"
     ],
     "steps": [
-      "Saute onions.",
-      "Add spices and tomato.",
-      "Add chicken and simmer."
+      "Heat oil in a pan and saut\u00e9 chopped onions until golden.",
+      "Add minced garlic and spices; stir for 30 seconds.",
+      "Add tomatoes and cook until soft and blended.",
+      "Add chicken pieces and stir until coated with the sauce.",
+      "Cover and cook for 25-30 minutes until the chicken is fully cooked.",
+      "Garnish with coriander and serve with rice or roti."
     ],
     "time_minutes": 40,
     "difficulty": "Medium",
@@ -393,11 +427,11 @@
     },
     "dietary": [
       "None"
-    ],
-    "id": "R015"
+    ]
   },
   {
-    "title": "Chickpea Salad (16)",
+    "id": "R016",
+    "title": "Chickpea Salad (v6)",
     "ingredients": [
       "chickpeas",
       "cucumber",
@@ -407,7 +441,11 @@
       "salt"
     ],
     "steps": [
-      "Mix all ingredients and serve."
+      "Rinse and drain the chickpeas.",
+      "Chop cucumber and tomato into small cubes.",
+      "Combine all in a bowl and drizzle with olive oil and lemon juice.",
+      "Season with salt and toss well.",
+      "Serve chilled."
     ],
     "time_minutes": 10,
     "difficulty": "Easy",
@@ -419,11 +457,11 @@
     "dietary": [
       "Vegan",
       "Gluten-Free"
-    ],
-    "id": "R016"
+    ]
   },
   {
-    "title": "Spaghetti Aglio e Olio (17)",
+    "id": "R017",
+    "title": "Spaghetti Aglio e Olio (v7)",
     "ingredients": [
       "spaghetti",
       "garlic",
@@ -433,9 +471,11 @@
       "salt"
     ],
     "steps": [
-      "Boil pasta.",
-      "Saute garlic in oil.",
-      "Toss together with chili and parsley."
+      "Boil spaghetti in salted water until al dente, then drain.",
+      "Heat olive oil in a pan and add sliced garlic and chili flakes.",
+      "Saut\u00e9 until fragrant and lightly golden.",
+      "Add cooked pasta and toss to coat evenly.",
+      "Garnish with chopped parsley and serve hot."
     ],
     "time_minutes": 15,
     "difficulty": "Easy",
@@ -446,11 +486,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R017"
+    ]
   },
   {
-    "title": "Masala Scrambled Eggs (18)",
+    "id": "R018",
+    "title": "Masala Scrambled Eggs (v8)",
     "ingredients": [
       "egg",
       "onion",
@@ -460,8 +500,11 @@
       "oil"
     ],
     "steps": [
-      "Beat eggs with spices.",
-      "Cook with onion and tomato."
+      "Heat oil in a pan and saut\u00e9 onions until translucent.",
+      "Add chopped tomatoes and cook until soft.",
+      "Beat eggs with salt and turmeric, then pour into the pan.",
+      "Stir continuously until eggs are softly scrambled.",
+      "Serve hot with toast or roti."
     ],
     "time_minutes": 8,
     "difficulty": "Easy",
@@ -473,11 +516,11 @@
     "dietary": [
       "Gluten-Free",
       "Vegetarian"
-    ],
-    "id": "R018"
+    ]
   },
   {
-    "title": "Fruit Yogurt Parfait (19)",
+    "id": "R019",
+    "title": "Fruit Yogurt Parfait (v9)",
     "ingredients": [
       "yogurt",
       "mixed fruits",
@@ -485,8 +528,9 @@
       "granola"
     ],
     "steps": [
-      "Layer yogurt, fruits and granola.",
-      "Drizzle honey."
+      "Chop fruits such as apple, banana, and berries.",
+      "In a glass, layer yogurt, fruits, and granola.",
+      "Drizzle honey on top and serve immediately."
     ],
     "time_minutes": 5,
     "difficulty": "Easy",
@@ -497,11 +541,11 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R019"
+    ]
   },
   {
-    "title": "Bean Burrito (20)",
+    "id": "R020",
+    "title": "Bean Burrito (v10)",
     "ingredients": [
       "tortilla",
       "beans",
@@ -510,8 +554,9 @@
       "lettuce"
     ],
     "steps": [
-      "Fill tortilla with beans and toppings.",
-      "Roll and serve."
+      "Warm the tortilla on a pan for 30 seconds on each side.",
+      "Spread a layer of beans, followed by cheese, salsa, and lettuce.",
+      "Roll the tortilla tightly and serve warm."
     ],
     "time_minutes": 12,
     "difficulty": "Easy",
@@ -522,7 +567,6 @@
     },
     "dietary": [
       "Vegetarian"
-    ],
-    "id": "R020"
+    ]
   }
-]
+    ]

@@ -1,4 +1,3 @@
-
 import streamlit as st
 import json, sqlite3, re
 from pathlib import Path
@@ -12,6 +11,7 @@ BASE = Path(__file__).parent
 DATA_PATH = BASE / "recipes.json"
 DB_PATH = BASE / "data.db"
 
+# Non-veg ingredients to exclude for vegetarian/vegan filters
 NON_VEG_INGREDIENTS = {"egg", "chicken", "fish", "meat", "pork", "beef", "shrimp", "tuna", "salmon"}
 
 SUBSTITUTIONS = {
@@ -22,6 +22,7 @@ SUBSTITUTIONS = {
     "sugar": ["honey", "maple syrup", "stevia"]
 }
 
+# ---------- DATABASE ----------
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -30,25 +31,31 @@ def init_db():
     conn.commit()
     conn.close()
 
+# ---------- DATA ----------
 @st.cache_data(show_spinner=False)
 def load_recipes() -> List[Dict[str, Any]]:
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
+# ---------- UTILITIES ----------
 def _parse_number_prefix(s: str):
+    """Extract leading numeric quantity (supports fractions, decimals, and mixed numbers)."""
     s = s.strip()
-    m = re.match(r'^(\\d+)\\s+(\\d+/\\d+)\\b(.*)$', s)
+    # mixed number: 1 1/2
+    m = re.match(r"^(\d+)\s+(\d+/\d+)\b(.*)$", s)
     if m:
         whole = int(m.group(1))
         frac = Fraction(m.group(2))
         rest = m.group(3).strip()
         return float(whole + frac), rest
-    m = re.match(r'^(\\d+/\\d+)\\b(.*)$', s)
+    # simple fraction: 1/2
+    m = re.match(r"^(\d+/\d+)\b(.*)$", s)
     if m:
         frac = Fraction(m.group(1))
         rest = m.group(2).strip()
         return float(frac), rest
-    m = re.match(r'^(\\d+(\\.\\d+)?)(?:\\s*([a-zA-Z\\/]+))?\\s*(.*)$', s)
+    # decimal or integer
+    m = re.match(r"^(\d+(\.\d+)?)(?:\s*([a-zA-Z\/]+))?\s*(.*)$", s)
     if m:
         num = float(m.group(1))
         unit = m.group(3) or ""
@@ -58,7 +65,12 @@ def _parse_number_prefix(s: str):
         return num, rest
     return None, s
 
+
 def scale_ingredients(ingredients: List[str], original_servings: int, new_servings: int) -> List[str]:
+    """
+    Scales ingredient lines intelligently. If no numeric quantity exists,
+    adds proportional note (x2, x0.5, etc.)
+    """
     scaled = []
     try:
         orig = int(original_servings) if original_servings else 1
@@ -68,59 +80,27 @@ def scale_ingredients(ingredients: List[str], original_servings: int, new_servin
         new = int(new_servings) if new_servings else orig
     except Exception:
         new = orig
+
     ratio = new / orig if orig else 1.0
+
     for ing in ingredients:
         try:
             num, rest = _parse_number_prefix(ing)
             if num is None:
-                scaled.append(f"{ing} (adjust proportionally by {ratio:.2f}×)")
+                if ratio != 1:
+                    scaled.append(f"{ing} (x{ratio:.2f})")
+                else:
+                    scaled.append(ing)
             else:
                 scaled_num = round(num * ratio, 2)
-                if rest:
-                    scaled.append(f"{scaled_num} {rest}".strip())
-                else:
-                    scaled.append(f"{scaled_num}".strip())
+                scaled.append(f"{scaled_num} {rest}".strip())
         except Exception:
-            scaled.append(f"{ing} (adjust proportionally by {ratio:.2f}×)")
+            if ratio != 1:
+                scaled.append(f"{ing} (x{ratio:.2f})")
+            else:
+                scaled.append(ing)
     return scaled
 
-def match_recipes(available_ingredients: List[str], recipes: List[Dict], dietary=None, difficulty=None, max_time=None, max_results=8):
-    available = set(i.strip().lower() for i in available_ingredients if i.strip())
-    results = []
-    for r in recipes:
-        req = set(r.get("ingredients", []))
-        # strict dietary enforcement
-        if dietary in ("vegetarian", "vegan"):
-            if req & NON_VEG_INGREDIENTS:
-                continue
-        if dietary and dietary not in [d.lower() for d in r.get("dietary", [])]:
-            continue
-        if difficulty and r.get("difficulty", "").lower() != difficulty:
-            continue
-        if max_time and r.get("time_minutes", 0) > max_time:
-            continue
-        # require at least one exact ingredient match
-        exact_matches = req & available
-        if not exact_matches:
-            continue
-        common = len(exact_matches)
-        overlap = common / max(1, len(req))
-        # require reasonable overlap (>=30%) or at least 1 exact match (already true)
-        if overlap < 0.3 and common < 1:
-            continue
-        score = common + overlap
-        results.append((score, r))
-    # dedupe and sort
-    seen = set()
-    deduped = []
-    for score, r in sorted(results, key=lambda x: x[0], reverse=True):
-        if r["id"] in seen:
-            continue
-        seen.add(r["id"])
-        deduped.append(r)
-        if len(deduped) >= max_results:
-            break
-    return deduped
 
 def suggest_substitutions(ingredient: str):
     ingredient = (ingredient or "").lower()
@@ -131,6 +111,54 @@ def suggest_substitutions(ingredient: str):
         return SUBSTITUTIONS[close[0]]
     return []
 
+
+# ---------- MATCHING ----------
+def match_recipes(available_ingredients: List[str], recipes: List[Dict],
+                  dietary=None, difficulty=None, max_time=None, max_results=8):
+    available = set(i.strip().lower() for i in available_ingredients if i.strip())
+    results = []
+
+    for r in recipes:
+        req = set(r.get("ingredients", []))
+
+        # strict dietary enforcement
+        if dietary in ("vegetarian", "vegan"):
+            if req & NON_VEG_INGREDIENTS:
+                continue
+        if dietary and dietary not in [d.lower() for d in r.get("dietary", [])]:
+            continue
+        if difficulty and r.get("difficulty", "").lower() != difficulty:
+            continue
+        if max_time and r.get("time_minutes", 0) > max_time:
+            continue
+
+        exact_matches = req & available
+        if not exact_matches:
+            continue
+
+        common = len(exact_matches)
+        overlap = common / max(1, len(req))
+        if overlap < 0.25 and common < 1:
+            continue
+        score = common + overlap
+        results.append((score, r))
+
+    # ✅ Deduplicate by normalized title (ignore "(v1)", "(v4)", etc.)
+    seen_titles = set()
+    deduped = []
+    for score, r in sorted(results, key=lambda x: x[0], reverse=True):
+        norm_title = re.sub(r"\(.*?\)", "", r["title"].lower()).strip()
+        if norm_title in seen_titles:
+            continue
+        seen_titles.add(norm_title)
+        deduped.append(r)
+        if len(deduped) >= max_results:
+            break
+
+    return deduped
+
+
+# ---------- FAVORITES / RATINGS ----------
 def add_favorite(recipe_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -168,6 +196,8 @@ def get_favorites():
     conn.close()
     return res
 
+
+# ---------- RECOMMENDATIONS ----------
 def recommend_from_ratings(recipes, user_ratings, top_n=6):
     liked = [rid for rid, r in user_ratings.items() if r >= 4]
     if not liked:
@@ -189,10 +219,12 @@ def recommend_from_ratings(recipes, user_ratings, top_n=6):
     scored.sort(key=lambda x: x[0], reverse=True)
     return [s[1] for s in scored if s[0] > 0][:top_n]
 
+
+# ---------- MAIN APP ----------
 def main():
     init_db()
-    st.title("🍽️ Smart Recipe Generator — Fixed")
-    st.markdown("Improved matching: requires at least one exact ingredient match and deduplication. Vegetarian/vegan strictly enforced.")
+    st.title("🍽️ Smart Recipe Generator — Final Version")
+    st.markdown("Improved matching, deduplication, scaling, and dietary accuracy.")
 
     recipes = load_recipes()
 
@@ -250,6 +282,7 @@ def main():
                         st.write("**Nutrition:**")
                         for k, v in r.get('nutrition', {}).items():
                             st.write(f"- {k}: {v}")
+
                         c1, c2, c3 = st.columns([1,1,1])
                         with c1:
                             if st.button("❤️ Save Favorite", key=f"fav_{r['id']}"):
@@ -263,6 +296,7 @@ def main():
                         with c3:
                             if st.button("🗑️ Remove Favorite", key=f"unfav_{r['id']}"):
                                 remove_favorite(r['id']); st.info("Removed from favorites")
+
     st.sidebar.header("⭐ Favorites & Suggestions")
     favs = get_favorites()
     if favs:
@@ -282,5 +316,7 @@ def main():
     else:
         st.sidebar.caption("Rate recipes to get personalized suggestions.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
+
+
